@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>나를 찾는 여정 · 디지털 자아 발견</title>
+<meta name="description" content="사주명리·별자리·수비학·성명학·도형심리·퍼스널컬러·타로·92문항 성향검사 — 命緣運像格跡 여섯 갈래 통합 자아 리포트와 궁합" />
+<style>
+  :root{
+    color-scheme: dark;   /* 날짜·시간 입력의 달력/시계 아이콘을 밝은 색으로 */
+    --bg:#0e0d13; --card:#1c1a26; --card2:#211e2c; --line:#2c2938;
+    --ink:#f4f0fb; --muted:#cfc9e0; --dim:#a39dbb;
+    --gold:#e7c46b; --goldD:#c9a24b;
+    --rose:#e88aa6; --sky:#7fc4e0; --leaf:#8fd6a6; --violet:#b59cf0;
+    --r:18px; --maxw:560px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{
+    background:radial-gradient(1100px 640px at 50% -8%, #241f33 0%, transparent 60%), var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+    line-height:1.6; letter-spacing:-.01em;
+    padding:0 16px calc(48px + env(safe-area-inset-bottom));
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto}
+  h1,h2,h3{margin:0; font-weight:800; letter-spacing:-.02em}
+  p{margin:.4em 0}
+  .screen{display:none; animation:fade .3s ease}
+  .screen.on{display:block}
+  @keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+
+  /* ---- 진행 바 ---- */
+  #stepbar{display:none; gap:6px; padding:18px 2px 4px}
+  #stepbar.on{display:flex}
+  #stepbar .seg{flex:1; height:4px; border-radius:2px; background:#2b2837; transition:.3s}
+  #stepbar .seg.done{background:var(--gold)}
+  #steplabel{font-size:14px; color:var(--dim); padding:6px 2px 0; display:none}
+  #steplabel.on{display:block}
+
+  /* ---- 카드/공통 ---- */
+  .card{background:linear-gradient(180deg,var(--card),#17151f); border:1px solid var(--line);
+    border-radius:var(--r); padding:22px; margin-top:18px}
+  .kicker{font-size:14px; letter-spacing:.26em; color:var(--gold); font-weight:700}
+  .hint{color:var(--dim); font-size:15px}
+  .btn{width:100%; margin-top:18px; border:0; cursor:pointer;
+    background:linear-gradient(180deg,#f0d786,#e0b34d); color:#2a2007;
+    font-weight:800; font-size:18px; padding:15px; border-radius:13px; font-family:inherit; transition:.15s}
+  .btn:hover{filter:brightness(1.05)}
+  .btn:disabled{opacity:.4; cursor:not-allowed}
+  .btn.ghost{background:transparent; color:var(--muted); border:1px solid var(--line)}
+  .btn.mini{width:auto; padding:8px 14px; font-size:15px; margin-top:0}
+
+  /* ---- 인트로 ---- */
+  .hero{padding:64px 4px 10px; text-align:center}
+  .hero h1{font-size:38px; line-height:1.16; margin:14px 0 12px;
+    background:linear-gradient(180deg,#fff,#d9cff0); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .hero .sub{color:var(--muted); font-size:17px; max-width:430px; margin:0 auto}
+  .layers{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:26px}
+  .layers .l{background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:14px 6px; text-align:center}
+  .layers .l .h{font-size:19px; font-weight:800; color:var(--gold)}
+  .layers .l .s{font-size:13px; color:var(--dim); margin-top:4px}
+  .lock{color:var(--dim); font-size:14px; text-align:center; margin-top:14px}
+
+  /* ---- 폼 ---- */
+  .field{margin-top:14px}
+  .field label{display:block; font-size:15px; color:var(--muted); margin-bottom:6px}
+  input,select{width:100%; background:var(--card2); border:1px solid var(--line);
+    color:var(--ink); border-radius:12px; padding:12px 13px; font-size:17px; font-family:inherit}
+  input:focus,select:focus{outline:none; border-color:var(--gold)}
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator{
+    cursor:pointer; width:20px; height:20px; opacity:.9;
+  }
+  /* 날짜·시간 선택 전용 큰 버튼 */
+  .pick-wrap{display:flex; gap:8px}
+  .pick-wrap input{flex:1; min-width:0}
+  .picker-btn{flex:none; width:54px; border:0; border-radius:12px; cursor:pointer;
+    font-size:22px; line-height:1;
+    background:linear-gradient(180deg,#ffe9a8,#e0b34d);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.8), 0 4px 12px rgba(224,179,77,.3)}
+  .picker-btn:hover{filter:brightness(1.06)}
+  .picker-btn.ok{width:auto; padding:0 14px; font-size:15px; font-weight:800; color:#2a2007; font-family:inherit}
+  .picker-btn.ok.done{background:linear-gradient(180deg,#c3edb2,#82cc6e); color:#173312}
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px}
+  .chips{display:flex; flex-wrap:wrap; gap:8px}
+  .chip{border:1px solid var(--line); background:var(--card2); color:var(--muted);
+    border-radius:999px; padding:9px 16px; font-size:16px; cursor:pointer; font-family:inherit; transition:.15s}
+  .chip.on{border-color:var(--gold); color:var(--gold); background:#2a2436}
+  .check{display:flex; align-items:center; gap:8px; font-size:15px; color:var(--muted); margin-top:8px; cursor:pointer}
+  .check input{width:auto}
+
+  /* ---- 한자 선택 ---- */
+  .hanja-grid{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; max-height:150px; overflow-y:auto}
+  .hanja-btn{border:1px solid var(--line); background:var(--card2); color:var(--ink);
+    border-radius:10px; padding:6px 9px; font-size:17px; cursor:pointer; font-family:inherit}
+  .hanja-btn small{display:block; font-size:12px; color:var(--dim)}
+  .hanja-btn.on{border-color:var(--gold); background:#2a2436; color:var(--gold)}
+  .hanja-btn.on small{color:var(--goldD)}
+
+  /* ---- 도형 ---- */
+  .shapes{display:grid; grid-template-columns:repeat(5,1fr); gap:9px; margin-top:16px}
+  .shape{position:relative; aspect-ratio:1; border:1px solid var(--line);
+    background:var(--card2); border-radius:16px; cursor:pointer; display:flex;
+    align-items:center; justify-content:center; transition:.18s; padding:0}
+  .shape svg{width:44%; height:44%}
+  .shape .nm{position:absolute; bottom:6px; font-size:13px; font-weight:600; color:var(--muted)}
+  .shape:hover{transform:translateY(-2px); border-color:#4a4560}
+  .shape.on{border-color:var(--gold); box-shadow:0 0 0 2px rgba(231,196,107,.28); background:#2a2436}
+  .shape.on .nm{color:var(--gold)}
+
+  /* ---- 설문 (1문항 진행) ---- */
+  .qprog{display:flex; justify-content:space-between; align-items:center; font-size:14px; color:var(--dim); margin-top:16px}
+  .qbar{height:4px; background:#2b2837; border-radius:2px; margin-top:8px; overflow:hidden}
+  .qbar i{display:block; height:100%; background:var(--gold); width:0%; transition:.25s}
+  .qtext{font-size:20px; font-weight:700; line-height:1.5; margin:26px 0 20px; min-height:80px}
+  .opts{display:flex; flex-direction:column; gap:9px}
+  .opt{border:1px solid var(--line); background:var(--card2); color:var(--ink);
+    border-radius:13px; padding:14px; font-size:17px; cursor:pointer; font-family:inherit; text-align:left; transition:.12s}
+  .opt:hover{border-color:var(--gold)}
+  .opt.sel{border-color:var(--gold); background:#2a2436; color:var(--gold)}
+  .likert{display:grid; grid-template-columns:repeat(5,1fr); gap:7px}
+  .likert .opt{text-align:center; padding:12px 4px; font-size:14px}
+
+  /* ---- 컬러 진단: 실제 색으로 고르기 ---- */
+  .demo-sw{display:flex; gap:8px; margin-top:14px}
+  .demo-sw span{flex:1; height:44px; border-radius:11px; border:1px solid rgba(255,255,255,.15)}
+  .opts.color-grid{flex-direction:row; flex-wrap:wrap}
+  .opts.color-grid .opt{flex:1 1 calc(33.3% - 6px); min-width:96px}
+  .opt.has-sw{display:flex; flex-direction:column; align-items:center; gap:8px; padding:12px 8px}
+  .opt .osw{display:flex; gap:4px; width:100%; justify-content:center}
+  .opt .osw i{width:100%; max-width:64px; height:40px; border-radius:9px;
+    border:1px solid rgba(255,255,255,.16); display:block}
+  .opt.has-sw .osw i:only-child{max-width:none}
+  .opt .olabel{font-size:15px; font-weight:600; color:var(--ink)}
+  .opt.sel .olabel{color:var(--gold)}
+  .qnav{display:flex; justify-content:space-between; margin-top:18px}
+
+  /* ---- 저장된 프로필 ---- */
+  .prof{display:flex; align-items:center; gap:10px; margin-top:10px; padding:13px 14px;
+    border:1px solid var(--glass-line); border-radius:13px; cursor:pointer;
+    background:linear-gradient(152deg, rgba(255,255,255,.11), rgba(255,255,255,.035));
+    box-shadow:var(--glass-soft); transition:.15s}
+  .prof:hover{border-color:rgba(240,215,134,.6)}
+  .prof .pemoji{font-size:24px}
+  .prof .pinfo{flex:1; min-width:0}
+  .prof .pname{font-weight:800; font-size:16px}
+  .prof .pmeta{font-size:13px; color:var(--dim)}
+  .prof .pdel{flex:none; border:0; background:transparent; color:var(--dim);
+    font-size:18px; cursor:pointer; padding:6px 8px; font-family:inherit}
+  .prof .pdel:hover{color:#e88aa6}
+
+  /* ---- 성향 4축: 양방향 축색 막대 ---- */
+  .axr{margin-top:13px}
+  .axr .axname{display:flex; justify-content:center; gap:8px; font-size:13px; color:var(--dim); margin-bottom:4px}
+  .axr .axname b{color:var(--muted); font-weight:600}
+  .axr-top{display:flex; justify-content:space-between; align-items:baseline; font-size:15px; margin-bottom:5px}
+  .axr-top .win{font-weight:800; font-size:16px}
+  .axr-top .lose{color:var(--dim); font-size:14px}
+  .axtr{position:relative; height:12px; background:#262332; border-radius:6px}
+  .axtr::before{content:''; position:absolute; left:50%; top:-2px; bottom:-2px; width:2px;
+    background:rgba(255,255,255,.22); border-radius:1px}
+  .axtr i{position:absolute; top:0; bottom:0; border-radius:6px; min-width:6px}
+
+  /* ---- 요약 카드 ---- */
+  .sum{margin-top:14px; border:1px solid var(--line); border-radius:16px; overflow:hidden}
+  .sum .top{display:flex; align-items:center; gap:11px; padding:13px 15px; background:#1f1c29}
+  .sum .badge{flex:none; min-width:34px; width:auto; padding:0 8px; height:34px; border-radius:10px; display:grid; place-items:center;
+    font-weight:800; font-size:17px; color:#2a2007; background:linear-gradient(180deg,#f0d786,#e0b34d)}
+  .sum .t1{font-weight:800; font-size:17px}
+  .sum .t2{font-size:14px; color:var(--dim)}
+  .sum .body{padding:13px 15px; font-size:16px; color:#e9e4f4; border-top:1px solid var(--line)}
+  .ganji-row{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; text-align:center}
+  .ganji-row .gj{background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 4px}
+  .ganji-row .gj .h{font-size:19px; font-weight:800; color:var(--gold); letter-spacing:0; white-space:nowrap}
+  .ganji-row .gj .k{font-size:13px; color:var(--muted)}
+  .ganji-row .gj .p{font-size:12px; color:var(--dim); margin-top:2px}
+  .ebar{display:flex; align-items:center; gap:8px; margin-top:7px; font-size:14px}
+  .ebar .nm{width:34px; color:var(--muted)}
+  .ebar .tr{flex:1; height:8px; background:#2b2837; border-radius:4px; overflow:hidden}
+  .ebar .tr i{display:block; height:100%; border-radius:4px}
+  .ebar .pc{width:36px; text-align:right; color:var(--dim)}
+  .swatches{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px}
+  .sw{width:34px; height:34px; border-radius:9px; border:1px solid rgba(255,255,255,.14)}
+  .warn{margin-top:12px; padding:11px 13px; border:1px solid #5a4a24; background:#2a2312;
+    color:#e3c877; border-radius:12px; font-size:15px}
+  footer{margin-top:34px; text-align:center; color:var(--dim); font-size:14px}
+
+  /* ---- 통합 리포트 ---- */
+  .rpt-cover{text-align:center; padding:44px 10px 20px}
+  .rpt-cover .big{font-size:32px; font-weight:800; margin-top:12px;
+    background:linear-gradient(180deg,#fff,#d9cff0); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .rpt-decl{margin-top:16px; padding:18px; border:1px solid var(--line); border-radius:16px;
+    background:var(--card2); font-size:17px; line-height:1.8; color:#e8e2f4}
+  .rpt-ch{margin-top:30px}
+  .rpt-ch .head{display:flex; align-items:baseline; gap:12px; padding:0 2px 10px; border-bottom:2px solid var(--gold)}
+  .rpt-ch .hanja{font-size:28px; white-space:nowrap; font-weight:800; color:var(--gold)}
+  .rpt-ch .tt{font-size:20px; font-weight:800}
+  .rpt-ch .st{font-size:14px; color:var(--dim)}
+  .rpt-sec{margin-top:14px; background:linear-gradient(180deg,var(--card),#17151f);
+    border:1px solid var(--line); border-radius:16px; padding:17px}
+  .rpt-sec h4{margin:0 0 8px; font-size:16px; color:var(--gold)}
+  .rpt-sec p{font-size:16px; color:#e9e4f4; margin:.35em 0}
+  .rpt-sec .sub{font-size:14px; color:var(--dim)}
+  .tag{display:inline-block; padding:3px 10px; border-radius:999px; font-size:14px;
+    border:1px solid var(--line); color:var(--muted); margin:2px 3px 2px 0}
+  .tag.gold{border-color:var(--goldD); color:var(--gold)}
+
+  /* ═══════ 유리빛 광택 테마 (Glassmorphism) ═══════ */
+  :root{
+    --glass: linear-gradient(152deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,.045) 40%, rgba(255,255,255,.10) 100%);
+    --glass-line: rgba(255,255,255,.22);
+    --glass-shine: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(255,255,255,.06), 0 12px 36px rgba(0,0,0,.42);
+    --glass-soft:  inset 0 1px 0 rgba(255,255,255,.25), 0 4px 14px rgba(0,0,0,.28);
+  }
+  body{
+    background:
+      radial-gradient(900px 620px at 12% -6%, rgba(124,92,252,.30), transparent 55%),
+      radial-gradient(820px 560px at 92% 2%, rgba(46,180,192,.24), transparent 55%),
+      radial-gradient(760px 540px at 50% 112%, rgba(233,196,106,.16), transparent 60%),
+      #0c0b13;
+  }
+  .card, .sum, .rpt-sec, .rpt-decl{
+    background: var(--glass);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid var(--glass-line);
+    box-shadow: var(--glass-shine);
+  }
+  .sum .top{ background: linear-gradient(152deg, rgba(255,255,255,.16), rgba(255,255,255,.05)) }
+  .layers .l, .opt, .chip, .shape, .hanja-btn, .ganji-row .gj, input, select{
+    background: linear-gradient(152deg, rgba(255,255,255,.11), rgba(255,255,255,.035));
+    border: 1px solid var(--glass-line);
+    box-shadow: var(--glass-soft);
+  }
+  .opt:hover, .shape:hover{ border-color: rgba(255,255,255,.42); box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 6px 20px rgba(0,0,0,.34) }
+  .opt.sel, .chip.on, .shape.on, .hanja-btn.on{
+    background: linear-gradient(152deg, rgba(231,196,107,.24), rgba(231,196,107,.07));
+    border-color: rgba(240,215,134,.65);
+    box-shadow: inset 0 1px 0 rgba(255,244,205,.5), 0 0 18px rgba(231,196,107,.22);
+  }
+  .btn{
+    background: linear-gradient(180deg,#ffe9a8 0%, #f0cf6e 46%, #dca63e 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.8), inset 0 -2px 3px rgba(140,95,20,.35), 0 8px 22px rgba(224,179,77,.32);
+  }
+  .btn.ghost{ background: linear-gradient(152deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+    box-shadow: var(--glass-soft) }
+  .sum .badge, .rpt-ch .hanja{
+    text-shadow: 0 0 22px rgba(231,196,107,.45);
+  }
+  .sum .badge{
+    background: linear-gradient(180deg,#ffe9a8,#dca63e);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 4px 12px rgba(224,179,77,.4);
+    text-shadow: none;
+  }
+  .qbar, .axtr, .ebar .tr{ background: rgba(255,255,255,.09);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.45), inset 0 -1px 0 rgba(255,255,255,.10) }
+  .qbar i, .axtr i, .ebar .tr i{ box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 0 10px rgba(255,255,255,.12) }
+  .sw, .osw i, .demo-sw span{
+    border: 1px solid rgba(255,255,255,.30);
+    box-shadow: inset 0 2px 5px rgba(255,255,255,.45), inset 0 -3px 6px rgba(0,0,0,.25), 0 3px 8px rgba(0,0,0,.3);
+  }
+  .hero h1, .rpt-cover .big{ text-shadow: 0 0 34px rgba(180,150,255,.35) }
+
+  /* ---- 인쇄(PDF 저장)용 ---- */
+  @media print{
+    :root{ --bg:#fff; --card:#fff; --card2:#f6f4fa; --line:#c9c4d6;
+           --ink:#1a1727; --muted:#4d4762; --dim:#6f6a80; --gold:#8a6d1f; --goldD:#8a6d1f }
+    body{background:#fff; padding:0 8mm}
+    .card,.sum,.rpt-sec,.rpt-decl,.layers .l,.ganji-row .gj{background:#fff !important;
+      backdrop-filter:none !important; box-shadow:none !important; border-color:#c9c4d6 !important}
+    .sum .top{background:#f3f0f9 !important}
+    #stepbar,#steplabel,.btn,footer{display:none !important}
+    .hero h1,.rpt-cover .big{-webkit-text-fill-color:initial; color:#1a1727; background:none}
+    .screen{display:none}
+    #scr-report.on{display:block}
+    .rpt-sec,.sum{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="stepbar"><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div></div>
+  <div id="steplabel"></div>
+
+  <!-- ═══════ 0. 인트로 ═══════ -->
+  <section class="screen on" id="scr-intro">
+    <div class="hero">
+      <div class="kicker">SELF DISCOVERY</div>
+      <h1>나를 찾는 여정</h1>
+      <p class="sub">동쪽의 사주와 서쪽의 별자리, 이름의 오행과 무의식의 도형,<br/>
+      나의 색과 92문항의 성향 — <b>여섯 개의 거울</b>이<br/>
+      여섯 갈래의 길(命·緣·運·像·格·跡)로 나를 비춰봅니다.</p>
+    </div>
+    <div class="layers">
+      <div class="l"><div class="h">命(명)</div><div class="s">타고난 명<br/>사주 · 이름 · 별자리</div></div>
+      <div class="l"><div class="h">緣(연)</div><div class="s">인연의 지도<br/>궁합 · 연애 · 가족운</div></div>
+      <div class="l"><div class="h">運(운)</div><div class="s">다가오는 시간<br/>올해와 열두 달</div></div>
+      <div class="l"><div class="h">像(상)</div><div class="s">투사된 상<br/>도형 · 나의 색</div></div>
+      <div class="l"><div class="h">格(격)</div><div class="s">정립된 격<br/>92문항 성향</div></div>
+      <div class="l"><div class="h">跡(적)</div><div class="s">걸어온 길<br/>나의 이야기</div></div>
+    </div>
+    <button class="btn" onclick="go('basic')">여정 시작하기 ✦</button>
+    <div class="lock">🔒 모든 분석은 이 화면 안에서만 이뤄지며, 입력 정보는 서버로 전송되지 않습니다</div>
+
+    <!-- 저장된 프로필 -->
+    <div class="card" id="profile-card" style="display:none">
+      <div class="kicker">SAVED JOURNEYS</div>
+      <h2 style="margin-top:8px; font-size:20px">저장된 나의 여정</h2>
+      <p class="hint">검사를 마치면 자동 저장됩니다. 눌러서 바로 리포트를 다시 볼 수 있습니다.</p>
+      <div id="profile-list"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn ghost mini" style="width:100%" onclick="exportProfiles()">💾 파일로 내보내기</button>
+        <button class="btn ghost mini" style="width:100%" onclick="document.getElementById('profile-file').click()">📂 파일 가져오기</button>
+      </div>
+      <input type="file" id="profile-file" accept=".json" style="display:none" onchange="importProfiles(this)"/>
+    </div>
+  </section>
+
+  <!-- ═══════ 1. 기본 정보 ═══════ -->
+  <section class="screen" id="scr-basic">
+    <div class="card">
+      <div class="kicker">STEP 1 · 命(명)의 재료</div>
+      <h2 style="margin-top:8px">당신을 알려주세요</h2>
+      <p class="hint">사주와 성명학 분석에 쓰입니다. 브라우저 밖으로 나가지 않습니다.</p>
+
+      <div class="row">
+        <div class="field"><label>성 (한글)</label><input id="in-sur" placeholder="박" maxlength="2"/></div>
+        <div class="field"><label>이름 (한글)</label><input id="in-giv" placeholder="형종" maxlength="4"/></div>
+      </div>
+
+      <div class="field"><label>성별</label>
+        <div class="chips" id="in-gender">
+          <button class="chip" data-v="M">남성</button>
+          <button class="chip" data-v="F">여성</button>
+        </div>
+      </div>
+
+      <div class="field"><label>혈액형</label>
+        <div class="chips" id="in-blood">
+          <button class="chip" data-v="A">A</button><button class="chip" data-v="B">B</button>
+          <button class="chip" data-v="O">O</button><button class="chip" data-v="AB">AB</button>
+          <button class="chip" data-v="">모름</button>
+        </div>
+      </div>
+
+      <div class="field"><label>생년월일</label>
+        <div class="row3">
+          <select id="in-cal"><option value="solar">양력</option><option value="lunar">음력</option></select>
+          <div class="pick-wrap" style="grid-column:span 2">
+            <input id="in-date" type="date"/>
+            <button type="button" class="picker-btn" title="달력 열기" onclick="openPicker('in-date')">📅</button>
+          </div>
+        </div>
+        <label class="check" id="leap-wrap" style="display:none"><input type="checkbox" id="in-leap"/> 윤달입니다</label>
+      </div>
+
+      <div class="field"><label>태어난 시각 <span style="color:var(--dim)">(시주 계산 — 진태양시 자동 보정)</span></label>
+        <div class="pick-wrap">
+          <input id="in-time" type="time" value="12:00"/>
+          <button type="button" class="picker-btn" title="시계 열기" onclick="openPicker('in-time')">🕐</button>
+          <button type="button" class="picker-btn ok" id="in-time-ok" onclick="confirmTime('in-time')">확인</button>
+        </div>
+        <label class="check"><input type="checkbox" id="in-nohour"/> 태어난 시각을 모릅니다 (시주 제외)</label>
+      </div>
+
+      <div class="field"><label>한자 이름 <span style="color:var(--dim)">(수리 성명학용 · 선택)</span></label>
+        <label class="check"><input type="checkbox" id="in-usehanja"/> 한자 이름을 선택하겠습니다</label>
+        <div id="hanja-pickers"></div>
+      </div>
+
+      <button class="btn" id="btn-basic" onclick="submitBasic()">다음 — 도형 선택 ✦</button>
+      <p class="hint" id="basic-err" style="color:#e88aa6"></p>
+    </div>
+  </section>
+
+  <!-- ═══════ 2. 도형 ═══════ -->
+  <section class="screen" id="scr-shape">
+    <div class="card">
+      <div class="kicker">STEP 2 · 像(상)의 재료 ①</div>
+      <h2 style="margin-top:8px">지금 가장 끌리는 도형은?</h2>
+      <p class="hint">고민하지 마시고, 눈이 먼저 가는 것을 골라 주세요. 무의식이 답합니다.</p>
+      <div class="shapes" id="shapes">
+        <button class="shape" data-k="square"><svg viewBox="0 0 40 40"><rect x="6" y="6" width="28" height="28" rx="3" fill="var(--sky)"/></svg><span class="nm">사각형</span></button>
+        <button class="shape" data-k="triangle"><svg viewBox="0 0 40 40"><path d="M20 5 L35 34 L5 34 Z" fill="var(--rose)"/></svg><span class="nm">삼각형</span></button>
+        <button class="shape" data-k="circle"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="var(--gold)"/></svg><span class="nm">원형</span></button>
+        <button class="shape" data-k="zigzag"><svg viewBox="0 0 40 40"><path d="M7 12 L18 12 L11 22 L22 22 L14 34" fill="none" stroke="var(--violet)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></svg><span class="nm">지그재그</span></button>
+        <button class="shape" data-k="rect"><svg viewBox="0 0 40 40"><rect x="5" y="12" width="30" height="16" rx="3" fill="var(--leaf)"/></svg><span class="nm">직사각형</span></button>
+      </div>
+      <button class="btn" id="btn-shape" disabled onclick="go('color')">다음 — 나의 색 찾기 ✦</button>
+    </div>
+  </section>
+
+  <!-- ═══════ 3. 퍼스널 컬러 ═══════ -->
+  <section class="screen" id="scr-color">
+    <div class="card">
+      <div class="kicker">STEP 3 · 像(상)의 재료 ②</div>
+      <h2 style="margin-top:8px">나의 색을 찾습니다</h2>
+      <div class="qprog"><span id="cq-no"></span><span>퍼스널 컬러 진단</span></div>
+      <div class="qbar"><i id="cq-bar"></i></div>
+      <div class="qtext" id="cq-text"></div>
+      <div class="opts" id="cq-opts"></div>
+      <div class="qnav">
+        <button class="btn ghost mini" id="cq-back" onclick="colorBack()">← 이전</button><span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ 4. 92문항 ═══════ -->
+  <section class="screen" id="scr-mbti">
+    <div class="card">
+      <div class="kicker">STEP 4 · 格(격)의 재료</div>
+      <h2 style="margin-top:8px">성향 검사 92문항</h2>
+      <p class="hint">깊이 고민하지 마시고, 평소의 자신에 가까운 쪽을 골라 주세요.</p>
+      <div class="qprog"><span id="mq-no"></span><span id="mq-axis"></span></div>
+      <div class="qbar"><i id="mq-bar"></i></div>
+      <div class="qtext" id="mq-text"></div>
+      <div class="likert" id="mq-opts"></div>
+      <div class="qnav">
+        <button class="btn ghost mini" id="mq-back" onclick="mbtiBack()">← 이전</button><span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ 5. 분석 중 ═══════ -->
+  <section class="screen" id="scr-loading">
+    <div class="card" style="text-align:center; padding:48px 22px">
+      <div style="font-size:44px" id="load-emoji">☾</div>
+      <h2 style="margin-top:14px">당신을 읽고 있습니다…</h2>
+      <p class="hint" id="load-msg">절기 시각을 대조하는 중</p>
+    </div>
+  </section>
+
+  <!-- ═══════ 6. 1차 요약 ═══════ -->
+  <section class="screen" id="scr-summary">
+    <div style="text-align:center; padding:22px 0 4px">
+      <div class="kicker">ANALYSIS COMPLETE</div>
+      <h2 style="font-size:26px; margin-top:10px" id="sum-name">님의 분석 결과</h2>
+      <p class="hint">여섯 갈래로 읽어낸 1차 요약입니다</p>
+    </div>
+    <div id="sum-warn"></div>
+    <div id="sum-cards"></div>
+    <button class="btn" onclick="showReport()">통합 리포트 펼치기 ✦</button>
+    <button class="btn ghost" onclick="location.reload()">↺ 처음부터 다시</button>
+    <footer>나를 찾는 여정 · 모든 계산은 당신의 브라우저 안에서만 이뤄졌습니다</footer>
+  </section>
+
+  <!-- ═══════ 7. 통합 리포트 ═══════ -->
+  <section class="screen" id="scr-report">
+    <div class="rpt-cover">
+      <div class="kicker">MY JOURNEY REPORT</div>
+      <div class="big" id="rpt-title">나를 찾는 여정</div>
+      <p class="hint" id="rpt-date"></p>
+      <div class="rpt-decl" id="rpt-decl"></div>
+    </div>
+    <div id="rpt-body"></div>
+    <button class="btn" onclick="go('gunghap')">💞 우리 둘의 궁합 보기</button>
+    <button class="btn" onclick="window.print()">🖨 인쇄 · PDF로 저장</button>
+    <button class="btn ghost" onclick="go('summary')">← 요약으로</button>
+    <button class="btn ghost" onclick="location.reload()">↺ 처음부터 다시</button>
+    <footer>나를 찾는 여정 · 이 리포트는 당신의 기기 안에서만 만들어졌습니다</footer>
+  </section>
+
+  <!-- ═══════ 8. 궁합 ═══════ -->
+  <section class="screen" id="scr-gunghap">
+    <div class="card">
+      <div class="kicker">MATCH · 緣</div>
+      <h2 style="margin-top:8px">궁금한 그 사람과의 궁합</h2>
+      <p class="hint">상대의 정보도 이 화면 안에서만 계산되고, 어디에도 저장되지 않습니다.</p>
+      <div class="row">
+        <div class="field"><label>상대 이름 (별칭도 좋습니다)</label><input id="gh-name" placeholder="그 사람"/></div>
+        <div class="field"><label>상대 성별</label>
+          <div class="chips" id="gh-gender">
+            <button class="chip" data-v="M">남성</button>
+            <button class="chip" data-v="F">여성</button>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label>상대 생년월일</label>
+        <div class="row3">
+          <select id="gh-cal"><option value="solar">양력</option><option value="lunar">음력</option></select>
+          <div class="pick-wrap" style="grid-column:span 2">
+            <input id="gh-date" type="date"/>
+            <button type="button" class="picker-btn" title="달력 열기" onclick="openPicker('gh-date')">📅</button>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label>상대 태어난 시각 <span style="color:var(--dim)">(모르면 비워두세요)</span></label>
+        <div class="pick-wrap">
+          <input id="gh-time" type="time"/>
+          <button type="button" class="picker-btn" title="시계 열기" onclick="openPicker('gh-time')">🕐</button>
+          <button type="button" class="picker-btn ok" id="gh-time-ok" onclick="confirmTime('gh-time')">확인</button>
+        </div>
+      </div>
+      <button class="btn" onclick="runGunghap()">궁합 풀이 ✦</button>
+      <p class="hint" id="gh-err" style="color:#e88aa6"></p>
+    </div>
+    <div id="gh-result"></div>
+    <button class="btn ghost" onclick="go('report')">← 리포트로</button>
+  </section>
+
+</div>
+
+<script src="js/lunar_table.js?v=1.4"></script>
+<script src="js/solar_terms.js?v=1.4"></script>
+<script src="js/manseryeok.js?v=1.4"></script>
+<script src="js/hanja_db.js?v=1.4"></script>
+<script src="js/naming.js?v=1.4"></script>
+<script src="js/questions.js?v=1.4"></script>
+<script src="js/assessment.js?v=1.4"></script>
+<script src="js/personal_color.js?v=1.4"></script>
+<script src="js/zodiac_west.js?v=1.4"></script>
+<script src="js/numerology.js?v=1.4"></script>
+<script src="js/fortune.js?v=1.4"></script>
+<script src="js/report_content.js?v=1.4"></script>
+<script src="js/app.js?v=1.4"></script>
+</body>
+</html>
