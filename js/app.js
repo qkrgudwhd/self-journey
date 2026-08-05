@@ -27,9 +27,9 @@ const SHAPE_INFO = {
 };
 
 // ---------- 화면 전환 ----------
-const STEPS = ['basic', 'shape', 'color', 'mbti', 'summary'];
-const STEP_LABELS = { basic:'1/5 기본 정보', shape:'2/5 도형 선택', color:'3/5 나의 색',
-                      mbti:'4/5 성향 검사', summary:'5/5 결과' };
+const STEPS = ['basic', 'shape', 'color', 'mbti', 'face', 'summary'];
+const STEP_LABELS = { basic:'1/6 기본 정보', shape:'2/6 도형 선택', color:'3/6 나의 색',
+                      mbti:'4/6 성향 검사', face:'5/6 관상 사진', summary:'6/6 결과' };
 
 function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
@@ -44,6 +44,7 @@ function go(id) {
   window.scrollTo(0, 0);
   if (id === 'color') renderColorQ();
   if (id === 'mbti') renderMbtiQ();
+  if (id === 'face') initFace();
 }
 
 // ---------- 날짜·시간 선택 버튼 ----------
@@ -230,7 +231,7 @@ function renderMbtiQ() {
       b.classList.add('sel');
       setTimeout(() => {
         if (mqIdx + 1 < QUESTIONS.length) { mqIdx++; renderMbtiQ(); }
-        else startAnalysis();
+        else go('face');
       }, 130);
     };
     box.appendChild(b);
@@ -238,9 +239,96 @@ function renderMbtiQ() {
 }
 function mbtiBack() { if (mqIdx > 0) { mqIdx--; renderMbtiQ(); } }
 
+// ═══════════════ 관상(면상) — 사진 검출 & 계측 ═══════════════
+// 사진/검출 결과는 이 세션 메모리에만 존재(저장·전송 안 함). 프로필에도 사진은 담지 않음.
+const FACE = { front: null, left: null, right: null };
+let facePickView = null, faceEngineReady = false;
+
+function initFace() {
+  refreshFaceBtn();
+  const el = document.getElementById('face-engine');
+  if (faceEngineReady) { el.textContent = '✓ 얼굴 인식 엔진 준비됨 — 사진을 올려 주세요.'; return; }
+  el.textContent = '얼굴 인식 엔진을 준비하는 중… (최초 1회, 잠시 걸립니다)';
+  FaceReader.load(msg => { el.textContent = msg; })
+    .then(() => { faceEngineReady = true; el.textContent = '✓ 얼굴 인식 엔진 준비 완료 — 사진을 올려 주세요.'; })
+    .catch(err => { el.innerHTML = `<span style="color:#e88aa6">엔진 로딩 실패: ${err.message}. 브라우저를 새로고침하거나, '사진 없이 진행'을 눌러 주세요.</span>`; });
+}
+
+function pickFace(view) {
+  facePickView = view;
+  document.getElementById('face-file').click();
+}
+
+function onFacePicked(input) {
+  const file = input.files[0];
+  input.value = '';
+  if (!file || !facePickView) return;
+  const view = facePickView;
+  const stat = document.getElementById('fstat-' + view);
+  const slot = document.getElementById('fslot-' + view);
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    slot.classList.add('filled');
+    stat.className = 'fs-stat fs-busy'; stat.textContent = '얼굴을 찾는 중…';
+    // 엔진 준비 보장
+    FaceReader.load().then(() => {
+      let lm = null;
+      try { lm = FaceReader.detect(img); } catch (e) { lm = null; }
+      const cv = document.getElementById('fcv-' + view);
+      FaceReader.drawOverlay(cv, img, lm);
+      URL.revokeObjectURL(url);
+      if (!lm) {
+        FACE[view] = null;
+        stat.className = 'fs-stat fs-warn';
+        stat.textContent = view === 'front'
+          ? '얼굴을 찾지 못했어요. 정면·밝은 사진으로 다시 시도해 주세요.'
+          : '옆얼굴 검출 실패(정상일 수 있음). 3/4 각도면 더 잘 잡힙니다.';
+        refreshFaceBtn();
+        return;
+      }
+      const metrics = (view === 'front')
+        ? FaceRead.measureFront(lm, img.naturalWidth, img.naturalHeight)
+        : FaceRead.measureProfile(lm, img.naturalWidth, img.naturalHeight, view);
+      // 리포트용 축소 썸네일(오버레이 포함) — 가로 360px
+      const scale = Math.min(1, 360 / cv.width);
+      const tcv = document.createElement('canvas');
+      tcv.width = Math.round(cv.width * scale); tcv.height = Math.round(cv.height * scale);
+      tcv.getContext('2d').drawImage(cv, 0, 0, tcv.width, tcv.height);
+      FACE[view] = { metrics, thumb: tcv.toDataURL('image/jpeg', 0.85) };
+      stat.className = 'fs-stat fs-ok';
+      stat.textContent = view === 'front' ? '✓ 정면 검출 완료 (468점)' : '✓ 측면 검출 완료';
+      refreshFaceBtn();
+    });
+  };
+  img.onerror = () => { stat.className = 'fs-stat fs-warn'; stat.textContent = '이미지를 읽을 수 없습니다.'; URL.revokeObjectURL(url); };
+  img.src = url;
+}
+
+function refreshFaceBtn() {
+  const btn = document.getElementById('btn-face');
+  btn.textContent = FACE.front ? '관상까지 넣어 분석하기 ✦' : '정면 사진을 올리면 관상 분석이 켜집니다';
+  btn.disabled = !FACE.front;
+  btn.style.opacity = FACE.front ? '1' : '.55';
+}
+
+function buildFaceResult() {
+  if (!FACE.front) { S.result.face = null; S.result.faceThumbs = null; return; }
+  const res = FaceRead.interpret(FACE.front.metrics, FACE.left && FACE.left.metrics, FACE.right && FACE.right.metrics);
+  const thumbs = [];
+  if (FACE.front) thumbs.push({ url: FACE.front.thumb, label: '정면' });
+  if (FACE.left) thumbs.push({ url: FACE.left.thumb, label: '좌측면' });
+  if (FACE.right) thumbs.push({ url: FACE.right.thumb, label: '우측면' });
+  S.result.face = res;
+  S.result.faceThumbs = thumbs;
+}
+
+function finishFace() { buildFaceResult(); startAnalysis(); }
+function skipFace() { S.result.face = null; S.result.faceThumbs = null; startAnalysis(); }
+
 // ---------- 분석 ----------
 const LOAD_MSGS = ['절기 시각을 대조하는 중', '이름의 오행을 읽는 중', '색의 결을 고르는 중',
-                   '92개의 답을 저울에 다는 중', '네 개의 기둥을 세우는 중'];
+                   '92개의 답을 저울에 다는 중', '네 개의 기둥을 세우는 중', '얼굴의 삼정을 재는 중'];
 function startAnalysis() {
   go('loading');
   let i = 0;
@@ -317,7 +405,7 @@ function axisBarHtml(a) {
 }
 
 // 한자 뱃지 → 한글 독음 병기 (별님 지시: 한자 옆에 항상 한글)
-const HANJA_KO = { 命:'명', 名:'명', 緣:'연', 運:'운', 像:'상', 格:'격', 跡:'적' };
+const HANJA_KO = { 命:'명', 名:'명', 緣:'연', 運:'운', 像:'상', 相:'상', 格:'격', 跡:'적' };
 const hanjaKo = h => HANJA_KO[h] ? `${h}(${HANJA_KO[h]})` : h;
 
 function card(badge, t1, t2, bodyHtml) {
@@ -378,6 +466,11 @@ function renderSummary() {
   const mb = R.mbti;
   const axBars = mb.axes.map(axisBarHtml).join('');
   html += card('格', `${mb.type} — ${mb.typeName}`, mb.brief, axBars);
+
+  // 관상 카드 (사진을 넣은 경우에만)
+  if (R.face && R.face.ok) {
+    html += card('相', '관상 — 얼굴에 새겨진 나', R.face.oheng.info.key, FaceRead.summaryHtml(R.face));
+  }
 
   document.getElementById('sum-warn').innerHTML = warn;
   document.getElementById('sum-cards').innerHTML = html;
@@ -441,6 +534,7 @@ function loadProfile(key) {
   const p = getProfiles()[key];
   if (!p) return;
   Object.assign(S, p.data);
+  S.result.face = null; S.result.faceThumbs = null;   // 저장 프로필엔 사진이 없음(관상 제외)
   runEngines();
   renderSummary();
   go('summary');
@@ -653,7 +747,13 @@ function renderReport() {
   }
   html += chapter('像', '제4장 · 선과 색의 언어', '도형과 색채로 보는 무의식', i2);
 
-  // ─── 제3장 格 ───
+  // ─── 제5장 相 (관상) ───
+  if (R.face && R.face.ok) {
+    const faceInner = FaceRead.reportHtml(R.face, R.faceThumbs);
+    html += chapter('相', '제5장 · 얼굴에 새겨진 나', '관상 — 삼정·오행형·십이궁', faceInner);
+  }
+
+  // ─── 제6장 格 ───
   const mb = R.mbti, td = TYPE_DEEP[mb.type];
   let i3 = '';
   i3 += sec(`${mb.type} — ${mb.typeName}`,
@@ -663,7 +763,7 @@ function renderReport() {
   const cross = crossShapeMbti(S.shape, mb.type);
   i3 += sec(`무의식과 의식의 대조 — ${cross.verdict}`,
     `<p>${cross.text}</p><p class="sub">도형(무의식적 끌림)과 92문항(의식적 자기보고)을 겹쳐 본 결과입니다.</p>`);
-  html += chapter('格', '제5장 · 성향과 강점의 조화', '데이터가 말하는 나의 페르소나', i3);
+  html += chapter('格', '제6장 · 성향과 강점의 조화', '데이터가 말하는 나의 페르소나', i3);
 
   // ─── 제4장 跡 ───
   let i4 = '';
@@ -675,7 +775,7 @@ function renderReport() {
     `<p>이 리포트가 밝힌 것은 재료까지입니다. 그 재료로 어떤 이야기를 지어 왔는지 —
      인생의 변곡점, 그때의 선택, 남기고 싶은 것 — 은 세상 어떤 도구도 대신 쓸 수 없습니다.</p>
      <p><b>이 리포트를 첫 페이지 삼아, 당신의 자서전을 시작해 보세요.</b></p>`);
-  html += chapter('跡', '제6장 · 나를 쓰다', '시간의 궤적과 남겨질 유산', i4);
+  html += chapter('跡', '제7장 · 나를 쓰다', '시간의 궤적과 남겨질 유산', i4);
 
   document.getElementById('rpt-body').innerHTML = html;
 }

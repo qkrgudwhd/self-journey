@@ -1,0 +1,15 @@
+이 폴더의 얼굴 특징점 검출 파일은 Google MediaPipe 프로젝트의 산출물입니다.
+
+- face_landmarker.task  : MediaPipe Face Landmarker 모델 (얼굴 468 특징점)
+- wasm/*.wasm, wasm/*.js: MediaPipe Tasks-Vision 실행 런타임(WebAssembly)
+- (동봉) js/vendor/vision_bundle.mjs : MediaPipe Tasks-Vision JavaScript API
+
+라이선스: Apache License 2.0
+저작권: Copyright 2023 The MediaPipe Authors
+원문: https://www.apache.org/licenses/LICENSE-2.0
+
+Apache-2.0는 상업적 이용·재배포·번들 포함을 허용합니다(저작권 및 라이선스 고지 유지 조건).
+이 프로그램은 위 파일들을 프로그램 폴더 안에 함께 담아(자가포함) 인터넷 연결 없이
+오프라인으로 실행하며, 사용자의 사진은 브라우저 안에서만 처리되어 외부로 전송되지 않습니다.
+
+── '나를 찾는 여정' · 관상(면상) 모듈
