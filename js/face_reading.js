@@ -11,9 +11,21 @@
 'use strict';
 
 // ── MediaPipe 파일 위치(자가포함) ─────────────────────────
-const BUNDLE = 'js/vendor/vision_bundle.mjs';
-const WASM   = 'models/wasm';
-const MODEL  = 'models/face_landmarker.task';
+// ⚠ classic 스크립트의 동적 import()는 비동기 콜백 안에서 호출되면
+//    "현재 스크립트"를 잃어 기준 URL이 about:blank가 된다(상대경로 실패).
+//    → 스크립트 로드 시점(동기)에 자기 위치로부터 '절대 URL'을 계산해 둔다.
+const _self = (document.currentScript && document.currentScript.src) || '';
+let _jsDir, _root;
+if (_self) {
+  _jsDir = _self.replace(/[?#].*$/, '').replace(/\/[^/]*$/, '/');  // …/js/
+  _root  = _jsDir.replace(/[^/]+\/$/, '');                         // …/(사이트 루트/하위경로)
+} else {                                                           // 폴백
+  _jsDir = new URL('js/', document.baseURI).href;
+  _root  = new URL('./', document.baseURI).href;
+}
+const BUNDLE = _jsDir + 'vendor/vision_bundle.mjs';   // 절대 URL
+const WASM   = _root + 'models/wasm';                 // 절대 URL
+const MODEL  = _root + 'models/face_landmarker.task'; // 절대 URL
 
 // ── 랜드마크 인덱스(468 캐노니컬 페이스메시) ──────────────
 const IX = {
@@ -62,7 +74,7 @@ const FaceReader = {
     if (this._loading) return this._loading;
     this._loading = (async () => {
       onStep && onStep('얼굴 인식 엔진을 여는 중…');
-      const vision = await import('./vendor/vision_bundle.mjs');
+      const vision = await import(BUNDLE);   // 절대 URL — about:blank 기준 문제 회피
       const { FilesetResolver, FaceLandmarker } = vision;
       onStep && onStep('검출 런타임을 준비하는 중…');
       const fileset = await FilesetResolver.forVisionTasks(WASM);

@@ -27,9 +27,9 @@ const SHAPE_INFO = {
 };
 
 // ---------- 화면 전환 ----------
-const STEPS = ['basic', 'shape', 'color', 'mbti', 'face', 'summary'];
+const STEPS = ['basic', 'shape', 'color', 'face', 'mbti', 'summary'];
 const STEP_LABELS = { basic:'1/6 기본 정보', shape:'2/6 도형 선택', color:'3/6 나의 색',
-                      mbti:'4/6 성향 검사', face:'5/6 관상 사진', summary:'6/6 결과' };
+                      face:'4/6 관상 사진', mbti:'5/6 성향 검사', summary:'6/6 결과' };
 
 function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
@@ -202,7 +202,7 @@ function renderColorQ() {
       b.classList.add('sel');
       setTimeout(() => {
         if (cqIdx + 1 < COLOR_QUESTIONS.length) { cqIdx++; renderColorQ(); }
-        else go('mbti');
+        else go('face');
       }, 160);
     };
     box.appendChild(b);
@@ -231,7 +231,7 @@ function renderMbtiQ() {
       b.classList.add('sel');
       setTimeout(() => {
         if (mqIdx + 1 < QUESTIONS.length) { mqIdx++; renderMbtiQ(); }
-        else go('face');
+        else startAnalysis();
       }, 130);
     };
     box.appendChild(b);
@@ -247,14 +247,29 @@ let facePickView = null, faceEngineReady = false;
 function initFace() {
   refreshFaceBtn();
   const el = document.getElementById('face-engine');
+  // ⚠ file:// (파일 더블클릭)에서는 브라우저 보안상 AI 모델을 못 읽음 → 친절 안내
+  if (location.protocol === 'file:') {
+    el.innerHTML = `<span style="color:#e88aa6">⚠ 관상 기능은 <b>웹서버에서만</b> 작동합니다.
+      지금은 파일을 직접 열어(file://) 브라우저 보안 정책상 AI 모델을 읽을 수 없습니다.<br/>
+      · <b>온라인 주소</b>(넷리파이·GitHub)에서는 정상 작동합니다.<br/>
+      · 내 컴퓨터에서 시험하려면 self_log 폴더의 <b>「관상_테스트_열기.bat」</b>을 더블클릭해 여세요.<br/>
+      (관상 없이 나머지 분석만 보시려면 아래 <b>'사진 없이 진행'</b>을 눌러 주세요.)</span>`;
+    return;
+  }
   if (faceEngineReady) { el.textContent = '✓ 얼굴 인식 엔진 준비됨 — 사진을 올려 주세요.'; return; }
   el.textContent = '얼굴 인식 엔진을 준비하는 중… (최초 1회, 잠시 걸립니다)';
   FaceReader.load(msg => { el.textContent = msg; })
     .then(() => { faceEngineReady = true; el.textContent = '✓ 얼굴 인식 엔진 준비 완료 — 사진을 올려 주세요.'; })
-    .catch(err => { el.innerHTML = `<span style="color:#e88aa6">엔진 로딩 실패: ${err.message}. 브라우저를 새로고침하거나, '사진 없이 진행'을 눌러 주세요.</span>`; });
+    .catch(err => {
+      const hint = location.protocol === 'file:'
+        ? " (파일 직접 열기에서는 작동하지 않습니다 — 「관상_테스트_열기.bat」으로 여세요)"
+        : " 브라우저를 새로고침하거나, '사진 없이 진행'을 눌러 주세요.";
+      el.innerHTML = `<span style="color:#e88aa6">엔진 로딩 실패: ${err.message}.${hint}</span>`;
+    });
 }
 
 function pickFace(view) {
+  if (location.protocol === 'file:') { initFace(); return; }  // file://면 안내만
   facePickView = view;
   document.getElementById('face-file').click();
 }
@@ -299,6 +314,10 @@ function onFacePicked(input) {
       stat.className = 'fs-stat fs-ok';
       stat.textContent = view === 'front' ? '✓ 정면 검출 완료 (468점)' : '✓ 측면 검출 완료';
       refreshFaceBtn();
+    }).catch(err => {
+      URL.revokeObjectURL(url);
+      stat.className = 'fs-stat fs-warn';
+      stat.textContent = '엔진 로딩 실패 — 웹서버(온라인 또는 .bat)로 여세요.';
     });
   };
   img.onerror = () => { stat.className = 'fs-stat fs-warn'; stat.textContent = '이미지를 읽을 수 없습니다.'; URL.revokeObjectURL(url); };
@@ -307,7 +326,7 @@ function onFacePicked(input) {
 
 function refreshFaceBtn() {
   const btn = document.getElementById('btn-face');
-  btn.textContent = FACE.front ? '관상까지 넣어 분석하기 ✦' : '정면 사진을 올리면 관상 분석이 켜집니다';
+  btn.textContent = FACE.front ? '관상 넣고 다음 — 성향 검사 ✦' : '정면 사진을 올리면 관상 분석이 켜집니다';
   btn.disabled = !FACE.front;
   btn.style.opacity = FACE.front ? '1' : '.55';
 }
@@ -323,8 +342,8 @@ function buildFaceResult() {
   S.result.faceThumbs = thumbs;
 }
 
-function finishFace() { buildFaceResult(); startAnalysis(); }
-function skipFace() { S.result.face = null; S.result.faceThumbs = null; startAnalysis(); }
+function finishFace() { buildFaceResult(); go('mbti'); }
+function skipFace() { S.result.face = null; S.result.faceThumbs = null; go('mbti'); }
 
 // ---------- 분석 ----------
 const LOAD_MSGS = ['절기 시각을 대조하는 중', '이름의 오행을 읽는 중', '색의 결을 고르는 중',
