@@ -265,6 +265,8 @@
 
   /* ---- 인쇄(PDF 저장)용 ---- */
   @media print{
+    /* ★ 배경색(막대·색상 견본·표)을 인쇄에서도 그대로 찍는다 — 없으면 전부 하얗게 나옴 */
+    html,body,*{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }
     :root{ --bg:#fff; --card:#fff; --card2:#f6f4fa; --line:#c9c4d6;
            --ink:#1a1727; --muted:#4d4762; --dim:#6f6a80; --gold:#8a6d1f; --goldD:#8a6d1f }
     body{background:#fff; padding:0 8mm}
@@ -277,6 +279,11 @@
     #scr-report.on{display:block}
     .rpt-sec,.sum{break-inside:avoid}
     .face-slots{display:block}
+    /* 막대 트랙·색상 견본이 종이에서도 또렷하게 */
+    .ebar .tr, .sj-bar, .axtr{ background:#e6e2ef !important; }
+    .sw, .osw i, .demo-sw span{ border:1px solid #9a94ad !important; }
+    .mtab th{ color:#2a2007 !important; }
+    .mtab td, .mtab th{ border-color:#b8b2c8 !important; }
   }
 
   /* ═══ 관상(면상) ═══ */
@@ -690,24 +697,24 @@
 
 </div>
 
-<script src="js/lunar_table.js?v=2.8"></script>
-<script src="js/solar_terms.js?v=2.8"></script>
-<script src="js/manseryeok.js?v=2.8"></script>
-<script src="js/hanja_db.js?v=2.8"></script>
-<script src="js/naming.js?v=2.8"></script>
-<script src="js/questions.js?v=2.8"></script>
-<script src="js/assessment.js?v=2.8"></script>
-<script src="js/personal_color.js?v=2.8"></script>
-<script src="js/zodiac_west.js?v=2.8"></script>
-<script src="js/numerology.js?v=2.8"></script>
-<script src="js/fortune.js?v=2.8"></script>
-<script src="js/report_content.js?v=2.8"></script>
-<script src="js/face_reading.js?v=2.8"></script>
-<script src="js/palm_reading.js?v=2.8"></script>
-<script src="js/fengshui.js?v=2.8"></script>
-<script src="js/taekil.js?v=2.8"></script>
-<script src="js/dream_data.js?v=2.8"></script>
-<script src="js/dream.js?v=2.8"></script>
-<script src="js/app.js?v=2.8"></script>
+<script src="js/lunar_table.js?v=2.9"></script>
+<script src="js/solar_terms.js?v=2.9"></script>
+<script src="js/manseryeok.js?v=2.9"></script>
+<script src="js/hanja_db.js?v=2.9"></script>
+<script src="js/naming.js?v=2.9"></script>
+<script src="js/questions.js?v=2.9"></script>
+<script src="js/assessment.js?v=2.9"></script>
+<script src="js/personal_color.js?v=2.9"></script>
+<script src="js/zodiac_west.js?v=2.9"></script>
+<script src="js/numerology.js?v=2.9"></script>
+<script src="js/fortune.js?v=2.9"></script>
+<script src="js/report_content.js?v=2.9"></script>
+<script src="js/face_reading.js?v=2.9"></script>
+<script src="js/palm_reading.js?v=2.9"></script>
+<script src="js/fengshui.js?v=2.9"></script>
+<script src="js/taekil.js?v=2.9"></script>
+<script src="js/dream_data.js?v=2.9"></script>
+<script src="js/dream.js?v=2.9"></script>
+<script src="js/app.js?v=2.9"></script>
 </body>
 </html>
