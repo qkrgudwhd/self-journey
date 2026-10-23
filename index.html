@@ -349,6 +349,77 @@
     .btn:hover,.chip:hover,.opt:hover,.shape:hover,.hanja-btn:hover,.layers .l:hover,.prof:hover{transform:none}
   }
 
+  /* ═══ 폼 컨트롤 색감 다듬기 (라벨·칩·드롭다운) ═══ */
+  /* 라벨: 밝은 라벤더 + 앞에 금빛 포인트 */
+  .field label, .chips + .chips, #in-gender, #in-blood,
+  .card > label{ color:#ddd3f2 }
+  .field label{ color:#ddd3f2; font-weight:600 }
+  .field label::before, .kicker::before{ content:"" }
+
+  /* 입력·드롭다운: 보랏빛 유리질감 + 금빛 화살표 */
+  input, select{
+    color:var(--ink);
+    background:linear-gradient(152deg, rgba(181,156,240,.12), rgba(127,196,224,.05));
+    border:1px solid rgba(181,156,240,.30);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.14), inset 0 -2px 6px rgba(0,0,0,.22);
+    transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  input::placeholder{ color:#8f88a8 }
+  input:hover, select:hover{ border-color:rgba(231,196,107,.45) }
+  input:focus, select:focus{ border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(231,196,107,.2), inset 0 1px 0 rgba(255,255,255,.18) }
+  select{
+    appearance:none; -webkit-appearance:none; -moz-appearance:none; padding-right:42px;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23e7c46b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"),
+      linear-gradient(152deg, rgba(181,156,240,.12), rgba(127,196,224,.05));
+    background-repeat:no-repeat, no-repeat;
+    background-position:right 14px center, 0 0;
+    background-size:16px, auto;
+  }
+  select:hover{ background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffe9a8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"),
+      linear-gradient(152deg, rgba(231,196,107,.14), rgba(181,156,240,.08)) }
+
+  /* 기본 칩: 은은한 보라·하늘 유리 + 밝은 글씨 */
+  .chip{ color:#ece7f8;
+    background:linear-gradient(152deg, rgba(181,156,240,.16), rgba(127,196,224,.07));
+    border:1px solid rgba(181,156,240,.34) }
+
+  /* 성별 칩: 남성=하늘빛 / 여성=장밋빛 */
+  #in-gender .chip[data-v="M"]{ color:#bfe4f3;
+    background:linear-gradient(152deg, rgba(127,196,224,.22), rgba(127,196,224,.06));
+    border-color:rgba(127,196,224,.5) }
+  #in-gender .chip[data-v="M"].on{ color:#0c2430;
+    background:linear-gradient(180deg,#bfe6f5,#7fc4e0); border-color:#bfe6f5;
+    box-shadow:0 0 16px rgba(127,196,224,.45), inset 0 1px 0 rgba(255,255,255,.6) }
+  #in-gender .chip[data-v="F"]{ color:#f4bfd2;
+    background:linear-gradient(152deg, rgba(232,138,166,.22), rgba(232,138,166,.06));
+    border-color:rgba(232,138,166,.5) }
+  #in-gender .chip[data-v="F"].on{ color:#3a0f1d;
+    background:linear-gradient(180deg,#f6c7d8,#e88aa6); border-color:#f6c7d8;
+    box-shadow:0 0 16px rgba(232,138,166,.45), inset 0 1px 0 rgba(255,255,255,.6) }
+
+  /* 혈액형 칩: A장미 · B하늘 · O연둣빛 · AB보라 · 모름회색 */
+  #in-blood .chip:nth-child(1){ color:#f4bfd2; border-color:rgba(232,138,166,.48);
+    background:linear-gradient(152deg, rgba(232,138,166,.2), rgba(232,138,166,.05)) }
+  #in-blood .chip:nth-child(2){ color:#bfe4f3; border-color:rgba(127,196,224,.48);
+    background:linear-gradient(152deg, rgba(127,196,224,.2), rgba(127,196,224,.05)) }
+  #in-blood .chip:nth-child(3){ color:#bfe9cb; border-color:rgba(143,214,166,.48);
+    background:linear-gradient(152deg, rgba(143,214,166,.2), rgba(143,214,166,.05)) }
+  #in-blood .chip:nth-child(4){ color:#d8c9f6; border-color:rgba(181,156,240,.5);
+    background:linear-gradient(152deg, rgba(181,156,240,.22), rgba(181,156,240,.06)) }
+  #in-blood .chip:nth-child(5){ color:#cfc9e0; border-color:rgba(255,255,255,.2);
+    background:linear-gradient(152deg, rgba(255,255,255,.08), rgba(255,255,255,.03)) }
+  /* 선택된 혈액형: 각 색으로 채워지며 발광 */
+  #in-blood .chip.on{ color:#17121f; border-color:rgba(255,255,255,.7);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 0 16px rgba(231,196,107,.35) }
+  #in-blood .chip:nth-child(1).on{ background:linear-gradient(180deg,#f6c7d8,#e88aa6) }
+  #in-blood .chip:nth-child(2).on{ background:linear-gradient(180deg,#bfe6f5,#7fc4e0) }
+  #in-blood .chip:nth-child(3).on{ background:linear-gradient(180deg,#c3edc9,#8fd6a6) }
+  #in-blood .chip:nth-child(4).on{ background:linear-gradient(180deg,#d8c9f6,#b59cf0) }
+  #in-blood .chip:nth-child(5).on{ background:linear-gradient(180deg,#efecf6,#cfc9e0) }
+
   /* ---- 인쇄(PDF 저장)용 ---- */
   @media print{
     /* ★ 배경색(막대·색상 견본·표)을 인쇄에서도 그대로 찍는다 — 없으면 전부 하얗게 나옴 */
