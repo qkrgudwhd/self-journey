@@ -263,6 +263,92 @@
   }
   .hero h1, .rpt-cover .big{ text-shadow: 0 0 34px rgba(180,150,255,.35) }
 
+  /* ═══ 생동감 애니메이션 레이어 (메뉴·버튼·카드 마우스 인터랙션) ═══ */
+
+  /* ── 진행 바(메뉴): 흐르는 채움 + 현재 단계 빛남 ── */
+  #stepbar{padding:20px 2px 6px}
+  #stepbar .seg{position:relative; height:6px; border-radius:3px;
+    background:rgba(255,255,255,.07); overflow:hidden;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.45)}
+  #stepbar .seg::after{content:""; position:absolute; inset:0; border-radius:3px;
+    transform:scaleX(0); transform-origin:left center;
+    background:linear-gradient(90deg,#f0d786,#e7c46b,#b59cf0,#7fc4e0,#e7c46b);
+    background-size:320% 100%;
+    transition:transform .55s cubic-bezier(.22,1,.36,1)}
+  #stepbar .seg.done::after{transform:scaleX(1)}
+  #stepbar .seg.active::after{animation:segFlow 3s linear infinite;
+    box-shadow:0 0 11px rgba(231,196,107,.75), 0 0 5px rgba(181,156,240,.6)}
+  #stepbar .seg.active{animation:segPulse 1.9s ease-in-out infinite}
+  @keyframes segFlow{to{background-position:320% 0}}
+  @keyframes segPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
+  #steplabel{color:var(--gold); font-weight:700; letter-spacing:.01em;
+    text-shadow:0 0 12px rgba(231,196,107,.4)}
+
+  /* ── 마우스 추종 글로우: 커서 위치(--mx,--my)에 은은한 빛 ── */
+  .btn, .chip, .opt, .shape, .hanja-btn, .layers .l, .prof{
+    position:relative; overflow:hidden;
+    transition:transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease,
+      border-color .22s ease, filter .18s ease}
+  .btn::before, .chip::before, .opt::before, .shape::before,
+  .hanja-btn::before, .layers .l::before, .prof::before{
+    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    opacity:0; transition:opacity .25s ease;
+    background:radial-gradient(130px 130px at var(--mx,50%) var(--my,50%),
+      rgba(255,255,255,.22), transparent 62%)}
+  .btn:hover::before, .chip:hover::before, .opt:hover::before, .shape:hover::before,
+  .hanja-btn:hover::before, .layers .l:hover::before, .prof:hover::before{opacity:1}
+
+  /* ── 호버 생동감: 살짝 떠오르며 빛나는 그림자 ── */
+  .btn:hover{transform:translateY(-2px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.85), 0 11px 30px rgba(224,179,77,.5),
+      0 0 24px rgba(231,196,107,.42)}
+  .btn:active{transform:translateY(0) scale(.99)}
+  .btn.ghost:hover{border-color:rgba(231,196,107,.5);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.25), 0 8px 22px rgba(0,0,0,.42)}
+  .chip:hover{transform:translateY(-2px); border-color:rgba(231,196,107,.6);
+    box-shadow:0 6px 18px rgba(0,0,0,.35), 0 0 14px rgba(231,196,107,.28)}
+  .opt:hover{transform:translateY(-1px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 7px 22px rgba(0,0,0,.36),
+      0 0 15px rgba(231,196,107,.2)}
+  .hanja-btn:hover{transform:translateY(-2px); border-color:rgba(231,196,107,.55);
+    box-shadow:0 6px 16px rgba(0,0,0,.4), 0 0 12px rgba(231,196,107,.28)}
+  .shape{transition:transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease, border-color .22s ease}
+  .shape svg{transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+  .shape:hover{transform:translateY(-3px); border-color:rgba(231,196,107,.45);
+    box-shadow:0 10px 26px rgba(0,0,0,.4), 0 0 18px rgba(127,196,224,.25)}
+  .shape:hover svg{transform:scale(1.15) rotate(-3deg)}
+  .layers .l:hover{transform:translateY(-3px); border-color:rgba(231,196,107,.45);
+    box-shadow:0 12px 30px rgba(0,0,0,.42), 0 0 20px rgba(181,156,240,.22)}
+  .prof:hover{transform:translateX(3px); border-color:rgba(240,215,134,.6);
+    box-shadow:0 8px 22px rgba(0,0,0,.4)}
+
+  /* ── 선택 시 톡 튀는 반응 ── */
+  @keyframes pop{0%{transform:scale(.9)}58%{transform:scale(1.06)}100%{transform:scale(1)}}
+  .chip.on, .shape.on, .opt.sel, .hanja-btn.on{animation:pop .34s cubic-bezier(.34,1.56,.64,1)}
+
+  /* ── 인트로 제목: 천천히 흐르는 금·보라 빛결 ── */
+  .hero h1{background:linear-gradient(100deg,#fff 0%,#d9cff0 28%,#f0d786 48%,#b59cf0 62%,#d9cff0 78%,#fff 100%);
+    background-size:230% auto; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:heroSheen 8s linear infinite}
+  @keyframes heroSheen{to{background-position:230% center}}
+
+  /* ── 인트로 세 갈래 카드: 차례로 떠오르기 ── */
+  .layers .l{animation:riseIn .55s both}
+  .layers .l:nth-child(1){animation-delay:.04s} .layers .l:nth-child(2){animation-delay:.11s}
+  .layers .l:nth-child(3){animation-delay:.18s} .layers .l:nth-child(4){animation-delay:.25s}
+  .layers .l:nth-child(5){animation-delay:.32s} .layers .l:nth-child(6){animation-delay:.39s}
+  @keyframes riseIn{from{opacity:0; transform:translateY(14px) scale(.96)} to{opacity:1; transform:none}}
+
+  /* ── 리포트 막대: 0 → 결과값으로 차오르기 ── */
+  .ebar .tr i, .axtr i, .qbar i{transition:width .9s cubic-bezier(.22,1,.36,1)}
+
+  /* ── 접근성: 모션 최소화 설정 시 애니메이션 끔 ── */
+  @media (prefers-reduced-motion: reduce){
+    .hero h1, #stepbar .seg.active, #stepbar .seg.active::after,
+    .layers .l, .chip.on, .shape.on, .opt.sel, .hanja-btn.on{animation:none}
+    .btn:hover,.chip:hover,.opt:hover,.shape:hover,.hanja-btn:hover,.layers .l:hover,.prof:hover{transform:none}
+  }
+
   /* ---- 인쇄(PDF 저장)용 ---- */
   @media print{
     /* ★ 배경색(막대·색상 견본·표)을 인쇄에서도 그대로 찍는다 — 없으면 전부 하얗게 나옴 */
@@ -697,24 +783,24 @@
 
 </div>
 
-<script src="js/lunar_table.js?v=2.9"></script>
-<script src="js/solar_terms.js?v=2.9"></script>
-<script src="js/manseryeok.js?v=2.9"></script>
-<script src="js/hanja_db.js?v=2.9"></script>
-<script src="js/naming.js?v=2.9"></script>
-<script src="js/questions.js?v=2.9"></script>
-<script src="js/assessment.js?v=2.9"></script>
-<script src="js/personal_color.js?v=2.9"></script>
-<script src="js/zodiac_west.js?v=2.9"></script>
-<script src="js/numerology.js?v=2.9"></script>
-<script src="js/fortune.js?v=2.9"></script>
-<script src="js/report_content.js?v=2.9"></script>
-<script src="js/face_reading.js?v=2.9"></script>
-<script src="js/palm_reading.js?v=2.9"></script>
-<script src="js/fengshui.js?v=2.9"></script>
-<script src="js/taekil.js?v=2.9"></script>
-<script src="js/dream_data.js?v=2.9"></script>
-<script src="js/dream.js?v=2.9"></script>
-<script src="js/app.js?v=2.9"></script>
+<script src="js/lunar_table.js?v=3.0"></script>
+<script src="js/solar_terms.js?v=3.0"></script>
+<script src="js/manseryeok.js?v=3.0"></script>
+<script src="js/hanja_db.js?v=3.0"></script>
+<script src="js/naming.js?v=3.0"></script>
+<script src="js/questions.js?v=3.0"></script>
+<script src="js/assessment.js?v=3.0"></script>
+<script src="js/personal_color.js?v=3.0"></script>
+<script src="js/zodiac_west.js?v=3.0"></script>
+<script src="js/numerology.js?v=3.0"></script>
+<script src="js/fortune.js?v=3.0"></script>
+<script src="js/report_content.js?v=3.0"></script>
+<script src="js/face_reading.js?v=3.0"></script>
+<script src="js/palm_reading.js?v=3.0"></script>
+<script src="js/fengshui.js?v=3.0"></script>
+<script src="js/taekil.js?v=3.0"></script>
+<script src="js/dream_data.js?v=3.0"></script>
+<script src="js/dream.js?v=3.0"></script>
+<script src="js/app.js?v=3.0"></script>
 </body>
 </html>

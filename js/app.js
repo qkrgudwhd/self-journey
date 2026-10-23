@@ -40,9 +40,13 @@ function go(id) {
   if (idx >= 0) {
     bar.classList.add('on'); lab.classList.add('on');
     lab.textContent = STEP_LABELS[id];
-    [...bar.children].forEach((seg, i) => seg.classList.toggle('done', i <= idx));
+    [...bar.children].forEach((seg, i) => {
+      seg.classList.toggle('done', i <= idx);
+      seg.classList.toggle('active', i === idx);
+    });
   } else { bar.classList.remove('on'); lab.classList.remove('on'); }
   window.scrollTo(0, 0);
+  requestAnimationFrame(() => animateBars(document.getElementById('scr-' + id)));
   if (id === 'color') renderColorQ();
   if (id === 'mbti') mbtiChoose();
   if (id === 'face') initFace();
@@ -1191,4 +1195,26 @@ function runDream() {
       <p><b>${e.short}</b></p><p>${e.text}</p></div>`;
   }).join('');
   document.getElementById('dream-result').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ---------- 생동감: 마우스 추종 글로우 + 막대 채움 애니메이션 ----------
+// 커서가 버튼·칩·도형·카드 위를 움직일 때마다 그 지점에 빛이 따라다님(--mx,--my)
+document.addEventListener('pointermove', e => {
+  const t = e.target;
+  const el = t && t.closest && t.closest('.btn,.chip,.opt,.shape,.hanja-btn,.layers .l,.prof');
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  el.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+  el.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+}, { passive: true });
+
+// 화면에 들어온 막대(오행·성향축·설문)를 0에서 결과값까지 차오르게 함
+function animateBars(root) {
+  if (!root) return;
+  root.querySelectorAll('.ebar .tr i, .axtr i, .qbar i').forEach(i => {
+    const w = i.style.width;
+    if (!w || w === '0%' || w === '0px') return;
+    i.style.width = '0';
+    requestAnimationFrame(() => requestAnimationFrame(() => { i.style.width = w; }));
+  });
 }
